@@ -1,184 +1,168 @@
-# 🖥️ VirtualBox Home Lab — Windows 11 + Kali (Splunk & Sysmon)
+# 🖥️ VirtualBox Home Lab — Windows 11 + Kali Linux + Metasploitable
 
-![VirtualBox](https://img.shields.io/badge/VirtualBox-7.2.2-blue?logo=virtualbox&logoColor=white)
-![Windows 11](https://img.shields.io/badge/Windows-11-blue?logo=windows&logoColor=white)
-![Kali Linux](https://img.shields.io/badge/Kali%20Linux-2025.2-blue?logo=kalilinux&logoColor=white)
-![Splunk](https://img.shields.io/badge/Splunk-Lab%20Setup-orange?logo=splunk&logoColor=white)
-![Sysmon](https://img.shields.io/badge/Sysmon-Configured-success)
+![VirtualBox](https://img.shields.io/badge/VirtualBox-7.2.2-blue?logo=virtualbox\&logoColor=white)
+![Windows 11](https://img.shields.io/badge/Windows-11-blue?logo=windows\&logoColor=white)
+![Kali Linux](https://img.shields.io/badge/Kali%20Linux-2025.2-blue?logo=kalilinux\&logoColor=white)
+![Metasploitable](https://img.shields.io/badge/Metasploitable-Lab%20VM-orange)
 
 ---
 
 ## 📌 Project overview
-This project demonstrates the design and implementation of an **isolated cybersecurity home lab** using VirtualBox, Windows 11, and Kali Linux.  
 
-The lab was built to practice:
-- Endpoint and network monitoring  
-- Safe log ingestion into Splunk  
-- Using Sysmon for detailed Windows telemetry  
-- Controlled attacker simulations in a **sandboxed, non-internet-exposed environment**
+This repository documents an **isolated cybersecurity home lab** built with VirtualBox to practice hands-on defensive and offensive techniques in a safe, sandboxed environment.
 
-All steps were fully documented and verified with screenshots.  
-👉 Please see the [`/images`](./images) folder for all supporting screenshots.
+**Goal:** Build an isolated lab for testing and learning (no external exposure).
+**Showcase:** Documented setup, VM configurations, NAT networking for the lab, and connectivity verification.
+
+All supporting screenshots are in the `/images` folder.
+
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/Label%202.png?raw=true" alt="Setup" height="500" hspace="70">
 
 ---
 
 ## 🔑 Key highlights
-- Verified installer integrity (SHA-256) before installation.  
-- Built Windows 11 and Kali Linux VMs in VirtualBox.  
-- Configured **Internal Network (`Myhome`)** with static IPs for secure, isolated communication.  
-- Installed Splunk Enterprise and ingested Windows + Sysmon logs.  
-- Used snapshots to create restore points and ensure safe experimentation.  
-- Troubleshot virtualization, networking, and fullscreen issues.  
-- Generated detection telemetry using safe, controlled simulations (malware steps redacted).  
 
----
-## 📚 Lessons learned
-
-* Always verify downloads with cryptographic checksums before running installers.
-* Snapshots are essential — take them before any experiment that modifies system state.
-* Internal (isolated) networking prevents accidental exposure of tests to the host or Internet.
-* Splunk + Sysmon provides effective visibility for endpoint detection and investigation.
-* Clear documentation and screenshots make laboratory work reproducible and easier to present to hiring managers.
+* Built reproducible VirtualBox lab with **Windows 11**, **Kali Linux**, and **Metasploitable** VMs.
+* Created a dedicated **NAT network** for the whole lab to isolate traffic from the host and wider Internet.
+* Verified connectivity between VMs and documented network configuration and troubleshooting steps.
+* Used snapshots for safe experimentation and quick rollback.
 
 ---
 
 ## 🛠 Tools & technologies
-- **Virtualization:** VirtualBox 7.2.2  
-- **Guest OS:** Windows 11, Kali Linux 2025.2  
-- **Log Management:** Splunk Enterprise  
-- **Endpoint Telemetry:** Microsoft Sysmon  
-- **Languages & Utilities:** PowerShell, Bash, 7-Zip, checksum verification tools  
+
+* **Virtualization:** VirtualBox 7.x
+* **Guest OS:** Windows 11, Kali Linux (official VirtualBox build), Metasploitable (vulnerable training VM)
+* **Utilities:** 7-Zip, checksum verification tools, PowerShell, Bash
+* **Networking:** VirtualBox NAT Network (dedicated for lab)
 
 ---
 
 ## ⚙️ Setup process
 
 ### 1. Download & verify VirtualBox
-- Downloaded VirtualBox installer from the official site.  
-- Verified installer integrity using SHA-256 in PowerShell:
+
+* Download VirtualBox from the official site and verify the installer with SHA-256 before running.
 
 ```powershell
 Get-FileHash -Path .\VirtualBox-7.2.2-170484-Win.exe -Algorithm SHA256
-````markdown
-## ⚙️ Setup process
+```
 
-### 1. Download & verify VirtualBox
-- Downloaded VirtualBox from the official site.  
-- Verified installer integrity using SHA-256 in PowerShell:
-```powershell
-Get-FileHash -Path .\VirtualBox-7.2.2-170484-Win.exe -Algorithm SHA256
-````
+*Compare the computed checksum with the official SHA256SUMS provided by the VirtualBox site.*
 
-* Compared the computed checksum with the official `SHA256SUMS` file to ensure the binary was not tampered with.
-* Installed VirtualBox and confirmed successful startup.
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/1.%20Installation%20&%20verification%20Virtual%20Envriroment/2.%20Checking%20Hash%20On%20CMD.png?raw=true" alt="Setup" height="500" hspace="70">
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/1.%20Installation%20&%20verification%20Virtual%20Envriroment/1.%20Checking%20Hashing%20Code%20in%20Virtual%20Box%20Site.png?raw=true" alt="Setup" height="500" hspace="70">
+
 
 ---
 
 ### 2. Windows 11 VM
 
-* Created a Windows 11 ISO using Microsoft's Media Creation Tool.
-* In VirtualBox: **New → Name: `VMTestWin11` → mount ISO → install**.
-* Configured username/password and assigned CPU, RAM, and disk based on host capabilities.
-* Installed VirtualBox Guest Additions (`VBoxWindowsAdditions-amd64.exe`) to enable fullscreen, mouse integration and better drivers.
-* Resolved a startup issue by enabling VT-x/AMD-V in the host BIOS/UEFI.
+* Create a new VM in VirtualBox: **New → Name: `Win11-Lab` → Type: Microsoft Windows → Version: Windows 11 (64-bit)**.
+* Attach the Windows 11 ISO, allocate CPU/RAM/disk according to host capacity, and proceed with installation.
+* Install VirtualBox Guest Additions in the guest to enable improved drivers, mouse integration, and full-screen support.
+
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/windows%2011%20UI.png?raw=true" alt="Setup" height="500" hspace="70">
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/2.%20Create%20Windows%2011%20VM/1.%20Windwos%20Guest%20Edition%20Files.png?raw=true" alt="Setup" height="500" hspace="70">
 
 ---
 
 ### 3. Kali Linux VM
 
-* Downloaded the official Kali VirtualBox release and extracted the archive (7-Zip).
-* Imported/registered the `.vbox` file in VirtualBox and started the VM with default settings.
-* Completed initial Kali setup and verified basic functionality.
+* Download the official Kali VirtualBox image or ISO and import/register the `.vbox` or use the installer.
+* Create a Kali VM (or import the provided VirtualBox appliance) and complete initial setup.
+* Verify basic functionality (networking, terminal, package updates).
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/Linux%20UI.png?raw=true" alt="Setup" height="500" hspace="70">
 
 ---
 
-### 4. Snapshots & safety
+### 4. Metasploitable VM
 
-* Created clean snapshots for both Windows and Kali immediately after base installations.
-* Purpose: provide reliable restore points before experiments and to quickly revert if needed.
-* Always work from a snapshot when performing tests that modify system state.
+* Download the Metasploitable VM (e.g., from SourceForge or the official archive) and extract the archive.
+* Create a new VM in VirtualBox (select **Other Linux (64-bit)** if no direct match) and attach the Metasploitable image/ISO.
+* Boot the VM and confirm it runs correctly.
 
----
-
-### 5. Networking configuration (Internal Network `Myhome`)
-
-* Set both VMs to **Internal Network** with the name `Myhome` (VirtualBox → Settings → Network).
-* Internal Network isolates VM-to-VM traffic from the host and the Internet.
-* Assigned static IPv4 addresses (Internal Network has no DHCP):
-
-  * **Windows:** `192.168.20.10` / `255.255.255.0`
-  * **Kali:** `192.168.20.11` / `255.255.255.0`
-* Verification commands:
-
-  * Windows: `ipconfig /all`
-  * Linux: `ifconfig` or `ip addr show`
-  * Cross-VM: `ping 192.168.20.11` (from Windows)
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/Metasploit%20UI.png?raw=true" alt="Setup" height="500" hspace="70">
 
 ---
 
-### 6. Splunk installation (Windows VM)
+### 5. Create a dedicated NAT Network for the lab
 
-* Temporarily switched Windows VM to NAT/DHCP to download Splunk Enterprise.
-* Installed Splunk via MSI and created a local admin account during setup.
-* Accessed Splunk web UI at `http://localhost:8000` on the Windows VM.
-* Added Windows Event Log inputs (Application, Security, System) via **Add Data**, and created an index (e.g., `endpoint`) for Sysmon/WEL events.
+* In VirtualBox Manager: **File → Host Network Manager** (or VirtualBox Network settings) → create a new **NAT Network** (example name: `LabNAT`).
+* Configure the NAT Network as needed (DHCP on/off). A single NAT Network keeps outbound connectivity controlled while isolating VM traffic from other host networks.
+
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/NAT%20Network.png?raw=true" alt="Setup" height="500" hspace="70">
 
 ---
 
-### 7. Sysmon installation (Windows VM)
+### 6. Connect VMs to the NAT Network
 
-* Downloaded Sysmon from Microsoft and obtained a curated `sysmonconfig.xml` from a community template.
-* Installed Sysmon with the configuration to capture process, network and file activity:
+* For each VM (Windows 11, Kali, Metasploitable):
+
+  * VirtualBox → **Settings → Network → Adapter 1** → Attached to: **NAT Network** → Name: `LabNAT`.
+* Optionally add a second adapter (Host-only or Internal) if you need host ↔ VM access while keeping outward traffic controlled. For pure isolation keep all lab VMs on the same NAT Network.
+
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/Meta%20Network%20Setup.png?raw=true" alt="Setup" height="500" hspace="70">
+
+---
+
+### 7. IP addressing & verification
+
+* If DHCP is enabled on the NAT Network, VMs will receive addresses automatically. If you prefer static addressing, configure static IPv4 addresses inside each guest.
+* Commands to verify network configuration and connectivity:
+
+Windows (inside VM):
 
 ```powershell
-.\Sysmon64.exe -i sysmonconfig.xml
+ipconfig /all
+ping <other-vm-ip>
 ```
 
-* Verified Sysmon was running and producing events in Event Viewer (Applications and Services Logs → Microsoft → Windows → Sysmon).
-* Confirmed Sysmon events were being ingested into Splunk by checking the `endpoint` index.
+Linux (Kali / Metasploitable):
+
+```bash
+ip addr show
+ping <other-vm-ip>
+```
+
+<img src="https://github.com/nabirudd/virtualbox_home_lab/blob/main/Metasploit/Ip%20Testing.png?raw=true" alt="Setup" height="500" hspace="70">
+
 
 ---
 
-### 8. Controlled testing (safety-first)
+### 8. Snapshots & safety
 
-* Performed controlled simulations **only** inside the isolated internal network to generate telemetry for detection practice.
-* For limited downloads, switched Windows VM to NAT briefly, then reverted to `Myhome` for testing.
-* Disabled Windows Defender only within the VM and only during controlled tests.
-* Generated reconnaissance/process/network activity from Kali and validated corresponding events in Splunk.
-* **Safety note:** All exploit/malware payload details are intentionally redacted from public documentation. Tests were run only on VMs under my control with snapshots in place.
+* Create clean snapshots immediately after installing and configuring each VM:
+
+  * VirtualBox Manager → Select VM → Snapshots → Take Snapshot.
+* Purpose: quick rollback after experiments and to maintain a known good baseline.
 
 ---
 
 ## 🐞 Troubleshooting & fixes
 
-* **Virtualization disabled:** Enabled VT-x/AMD-V in BIOS/UEFI to run 64-bit guests.
-* **Fullscreen/borderless issues:** Installed Guest Additions inside the Windows guest.
-* **Networking issues:** Ensure both VMs use the same Internal Network name and static IPs (Internal Network does not provide DHCP).
-* **Sysmon errors:** Re-ran installer with the configuration file and confirmed service registration in Services and Event Viewer.
+* **NAT network issues:** Ensure all VMs are attached to the same NAT Network name and that VirtualBox’s NAT Network service is running. If DHCP is disabled, assign static IPs inside each guest.
+* **VM performance problems:** Adjust CPU/RAM allocation or enable VT-x/AMD-V in the host BIOS/UEFI.
+* **Fullscreen/mouse integration issues:** Install/repair Guest Additions in the guest OS.
+* **Metasploitable unavailable/boot errors:** Verify the image was imported correctly and file integrity (re-extract archive if necessary).
+
+---
+
+## 📚 Lessons learned
+
+* Use snapshots liberally before making changes — they save time and prevent data loss.
+* A dedicated NAT Network allows controlled Internet access (if desired) while keeping lab traffic isolated from the host and external networks.
+* Keep vulnerable targets (Metasploitable) strictly inside lab networks — never expose them to your home/office network.
+* Clear documentation (commands, IPs, screenshots) makes the lab reproducible and easy to present to hiring managers.
 
 ---
 
 ## ✅ Results & outcomes
 
-* Built a reproducible, isolated VirtualBox lab with Windows 11 and Kali Linux VMs.
-* Ingested Windows Event Logs and enriched telemetry with Sysmon into Splunk (`endpoint` index).
-* Validated detection workflows by producing and locating related event telemetry (searches by EventCode, dashboard checks).
-* Used snapshots and isolation to ensure safe, reversible testing.
-* Documented the entire process with screenshots for reproducibility and review (see `./images`).
+* Reproducible VirtualBox lab containing Windows 11, Kali Linux, and Metasploitable.
+* Dedicated NAT Network (`LabNAT`) connecting all lab machines and isolating experiments.
+* Verified inter-VM connectivity and documented setup for portfolio presentation.
+* Full set of screenshots and configuration artifacts saved to `./images` for review.
 
 ---
 
-## 📸 References & Images
-
-All screenshots and supporting images are in the `./images` folder. Key captures include:
-
-* `vb_checksum.png` — VirtualBox SHA-256 verification
-* `vm_creation.png` — Windows VM creation
-* `guest_additions.png` — Guest Additions install
-* `kali_import.png` — Kali import/startup
-* `snapshot_examples.png` — Snapshot screenshots
-* `network_config.png` — Static IP setup
-* `splunk_setup.png` — Splunk Add Data & index settings
-* `sysmon_events.png` — Sysmon events in Event Viewer / Splunk
-
-> Open the `images/` folder in this repo to view the screenshots.
